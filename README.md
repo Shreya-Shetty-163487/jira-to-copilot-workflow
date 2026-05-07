@@ -56,7 +56,7 @@ on:
 
 jobs:
   call-automation:
-    uses: YOUR_USERNAME/jira-to-copilot-workflow/.github/workflows/jira-to-github-issue.yml@main
+    uses: Shreya-Shetty-163487/jira-to-copilot-workflow/.github/workflows/jira-to-github-issue.yml@main
     with:
       jira_issue_key: ${{ inputs.jira_issue_key }}
       github_owner: YOUR_GITHUB_USERNAME_OR_ORG
@@ -69,7 +69,6 @@ jobs:
 ```
 
 Replace:
-- `YOUR_USERNAME` — the GitHub username/org where this reusable workflow repo lives
 - `YOUR_GITHUB_USERNAME_OR_ORG` — the owner of **your** repo (where issues will be created)
 - `YOUR_REPO_NAME` — the name of **your** repo (where issues will be created)
 
