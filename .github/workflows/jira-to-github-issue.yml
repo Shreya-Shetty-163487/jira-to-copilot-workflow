@@ -42,8 +42,9 @@ jobs:
       - name: Checkout automation scripts
         uses: actions/checkout@v4
         with:
-          repository: Shreya-Shetty-163487/jira-to-copilot-workflow   # <-- update this after pushing
+          repository: Shreya-Shetty-163487/jira-to-copilot-workflow
           ref: main
+          token: ${{ secrets.GH_PAT_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
