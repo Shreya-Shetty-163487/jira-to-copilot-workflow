@@ -1,0 +1,78 @@
+name: Close Jira Ticket on PR Merge (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      pr_body:
+        description: "Body of the merged pull request (used to extract the Jira key)"
+        required: true
+        type: string
+      target_status:
+        description: "Jira status to transition to on merge"
+        required: false
+        type: string
+        default: "Done"
+    secrets:
+      JIRA_BASE_URL:
+        description: "Your Jira instance URL e.g. https://yourorg.atlassian.net"
+        required: true
+      JIRA_EMAIL:
+        description: "Email address used to log into Jira"
+        required: true
+      JIRA_API_TOKEN:
+        description: "Jira API token (from Jira Account Settings)"
+        required: true
+
+jobs:
+  close-jira-ticket:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout automation scripts
+        uses: actions/checkout@v4
+        with:
+          repository: Shreya-Shetty-163487/jira-to-copilot-workflow
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Extract Jira key and transition ticket
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          PR_BODY: ${{ inputs.pr_body }}
+          TARGET_STATUS: ${{ inputs.target_status }}
+        run: |
+          python - <<'EOF'
+          import os
+          import re
+          import sys
+          from fetch_ticket import transition_ticket
+
+          pr_body = os.environ.get("PR_BODY", "")
+          target_status = os.environ.get("TARGET_STATUS", "Done")
+
+          # Extract Jira key from the hidden marker in the issue/PR body
+          match = re.search(r"<!--\s*jira-key:\s*([A-Z]+-\d+)\s*-->", pr_body)
+          if not match:
+              print("No Jira key found in PR body. Skipping transition.")
+              sys.exit(0)
+
+          jira_key = match.group(1)
+          print(f"Found Jira key: {jira_key}")
+          print(f"Transitioning to: {target_status}")
+
+          try:
+              transition_ticket(jira_key, target_status)
+              print(f"Successfully transitioned {jira_key} to '{target_status}'.")
+          except RuntimeError as exc:
+              print(f"Warning: Could not transition Jira ticket: {exc}")
+              sys.exit(1)
+          EOF
