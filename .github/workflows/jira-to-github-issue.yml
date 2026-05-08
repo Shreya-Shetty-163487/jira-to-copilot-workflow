@@ -44,7 +44,6 @@ jobs:
         with:
           repository: Shreya-Shetty-163487/jira-to-copilot-workflow
           ref: main
-          token: ${{ secrets.GH_PAT_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
